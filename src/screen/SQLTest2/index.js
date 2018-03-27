@@ -8,8 +8,9 @@ import {
   TouchableHighlight
 } from 'react-native'
 import SQLUtils from '../../utils/SQLUtils'
-
 let sqlite = new SQLUtils()
+import web3API from '../../utils/web3API'
+let web3 = new web3API()
 
 export default class SQLTest2 extends Component {
   constructor(props) {
@@ -202,6 +203,19 @@ export default class SQLTest2 extends Component {
     })
   }
 
+  _onValidateAddress = () => {
+    let str1 = '0xbb42a58c7a922682a4f6765ebda39afd2b1b4b50';
+    let str2 = '222222222222222222';
+    let str3 = '1234'
+    let str4 = '123456'
+    let result1 = web3.validateAccount(str2);
+    console.log('result1+',result1);
+    let result2 = web3.validatePassword(str3);
+    console.log('result2+',result2);
+    let result3 = web3.validatePassword(str4);
+    console.log('result3+',result3);
+  }
+
   render() {
     return (
       <View>
@@ -252,6 +266,12 @@ export default class SQLTest2 extends Component {
           style={{marginTop: 15}}
         >
           <Text>ahistory更新</Text>
+        </TouchableHighlight>
+        <TouchableHighlight
+          onPress={this._onValidateAddress}
+          style={{marginTop: 15}}
+        >
+          <Text>验证地址</Text>
         </TouchableHighlight>
       </View>
     )

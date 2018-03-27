@@ -61,19 +61,63 @@ class APIUtils {
       data: option
     })
   }
+  getShortAccount(account) {
+    if (account != undefined) {
+      account = account.substring(0, 5) + "..." + account.substring(account.length - 5, account.length);
+      return account;
+    }else{
+      return "账户串异常";
+    }
+  }
+  getShortAccount2(account) {
+    if (account != undefined) {
+      account = account.substring(0, 9) + "..." + account.substring(account.length - 9, account.length);
+      return account;
+    }else{
+      return "账户串异常";
+    }
+  }
 
+  validateNumber(data){
+    let myreg = /^(-?\d+)(\.\d+)?$/
+    if (!myreg.test(data)) {
+      return false;
+    } else {
+      return true;
+    }
+  }
 
+  validatePone(pone) {
+    let myreg = /^[1][3,4,5,7,8][0-9]{9}$/;
+    if (!myreg.test(pone)) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  validateCardNum(cardnum){
+    let myreg = /(^\d{15}$)|(^\d{17}([0-9]|X)$)/;
+    if (!myreg.test(cardnum)) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  validateIfEmpty(data){
+    if(data == null || data == ''){
+      return false;
+    }
+    return true;
+  }
   //storage
   validateName(account_name) {
-    var v = storage.getItem('allwallets');
-    var allwallets = null;
-    if (v != "" && v != null) {
-      var allwallets = JSON.parse(v);
-      for (var i = 0; i < allwallets.length; i++) {
-        if (allwallets[i].name == account_name) {
-          return false;
-        }
-      }
+    if (account_name == null) {
+      return false;
+    }
+    if (account_name.length < 4) {
+      return false;
     }
     return true;
   }
@@ -97,7 +141,9 @@ class APIUtils {
 
   //pure
   validateAccount(address) {
-    if (!/^(0x)?[0-9a-f]{40}$/i.test(address)) {
+    if(!(address.substring(0,2) === "0x")){
+      return false
+    }else if (!/^(0x)?[0-9a-f]{40}$/i.test(address)) {
       // check if it has the basic requirements of an address
       return false;
     } else if (/^(0x)?[0-9a-f]{40}$/.test(address) || /^(0x)?[0-9A-F]{40}$/.test(address)) {
@@ -108,19 +154,18 @@ class APIUtils {
       return false;
     }
   }
-
   //pure
-  validatePassword() {
+  validatePassword(Password) {
     if (Password == null) {
       return false;
     }
     if (Password.length < 6) {
       return false;
     }
-    if (!/^(0x)?[0-9a-f]{6}$/i.test(Password)) {
+    if (!/^[0-9a-f]{6}$/i.test(Password)) {
       // check if it has the basic requirements of an address
       return false;
-    } else if (/^(0x)?[0-9a-f]{6}$/.test(Password) || /^(0x)?[0-9A-F]{6}$/.test(Password)) {
+    } else if (/^[0-9a-f]{6}$/.test(Password) || /^[0-9A-F]{6}$/.test(Password)) {
       // If it's all small caps or all all caps, return true
       return true;
     } else {

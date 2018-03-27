@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, TextInput, Alert} from 'react-native';
+import {StyleSheet, Text, View, TextInput, Alert, ToastAndroid} from 'react-native';
 import TitleBar from '../../components/TitleBar'
 import SubmitButton from '../../components/SubmitButton'
 import SQLUtils from '../../utils/SQLUtils'
@@ -37,6 +37,29 @@ export default class ImportInformation extends Component {
     sqlite.close()
   }
   onPressSubmit = () => {
+    if(!web3.validateIfEmpty(this.state.name)){
+      ToastAndroid.show('姓名不能为空', ToastAndroid.SHORT);
+      return;
+    }
+    else if(!web3.validateIfEmpty(this.state.mobile)){
+      ToastAndroid.show('手机号不能为空', ToastAndroid.SHORT);
+      return;
+    }
+    else if(!web3.validatePone(this.state.mobile)){
+      ToastAndroid.show('手机号格式错误', ToastAndroid.SHORT);
+      return;
+    }
+    else if(!web3.validateIfEmpty(this.state.carNum)){
+      ToastAndroid.show('身份证号不能为空', ToastAndroid.SHORT);
+      return;
+    }
+    else if(!web3.validateCardNum(this.state.carNum)){
+      ToastAndroid.show('身份证号长度不对，或者号码不符合规定！', ToastAndroid.SHORT);
+      return;
+    }
+    else {
+      return true
+    }
     let option = {
       'account_hash': this.state.wallet.account,
       'account': this.state.wallet.account,
@@ -70,14 +93,16 @@ export default class ImportInformation extends Component {
           Alert.alert("提交成功 ");
           this.props.dispatch(link('Home'));
           return;
-        }
-        else {
-          Alert.alert("发生意外错误！");
+        }else if (msg.data.code == 2) {
+          Alert.alert("密码或钥匙串错误，请重新输入!");
+          return;
+        }else {
+          Alert.alert("发生意外错误！"+msg.data.msg);
           return;
         }
       }
     }).catch((err) => {
-      Alert.alert("发生意外错误！");
+      Alert.alert("发生意外错误！"+err);
     })
   }
   setMobile = (text) => {
@@ -95,7 +120,6 @@ export default class ImportInformation extends Component {
   setPlate_Num = (text) => {
     this.setState({plate_Num: text});
   }
-
   renderItem(text, placeholder, value, changeInput) {
     return (
       <View>
@@ -115,15 +139,14 @@ export default class ImportInformation extends Component {
       </View>
     );
   }
-
   render() {
     return (
       <View style={styles.container}>
         <TitleBar title='信息录入' type='1' name='Home'/>
         <View style={styles.inputContainer}>
-          {this.renderItem('姓名', '填写姓名', this.state.name, this.setName.bind(this))}
-          {this.renderItem('手机号', '手机号', this.state.mobile, this.setMobile.bind(this))}
-          {this.renderItem('身份证号', '填写身份证号', this.state.carNum, this.setCarNum.bind(this))}
+          {this.renderItem('姓名', '填写姓名 必填', this.state.name, this.setName.bind(this))}
+          {this.renderItem('手机号', '手机号 必填', this.state.mobile, this.setMobile.bind(this))}
+          {this.renderItem('身份证号', '填写身份证号 必填', this.state.carNum, this.setCarNum.bind(this))}
           {this.renderItem('银行卡号', '填写银行卡号', this.state.bankNum, this.setBankNum.bind(this))}
           {this.renderItem('车牌号', '填写车牌号', this.state.plate_Num, this.setPlate_Num.bind(this))}
         </View>
@@ -133,7 +156,6 @@ export default class ImportInformation extends Component {
     );
   }
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

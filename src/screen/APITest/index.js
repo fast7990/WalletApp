@@ -38,28 +38,48 @@ export default class APITest extends Component {
       dropdown_4_defaultValue: 'loading...',
       dropdown_6_icon_heart: true,
       to_account:'请填写对方地址',
+      account_list:null
     }
   }
-
-  componentWillUnmount = () => {
-
-  }
   componentDidMount = () => {
+    //得到数据 传给数组
+    /*
+    sqlite.getSendTokenToAccount().then((msg)=>{
+      console.log(msg)
+      let arr = []
+      for(let i=0; i<msg.length;i++){
+        arr.push(msg[i].to_account)
+      }
+      this.setState({account_list : arr})
+      console.log(this.state.account_list);
+    }).catch((err)=>{
+      console.log(err)
+    })
+    */
+    sqlite.getSendEthToAccount().then((msg)=>{
+      console.log(msg)
+      let arr = []
+      for(let i=0; i<msg.length;i++){
+        arr.push(msg[i].to_account)
+      }
+      this.setState({account_list : arr})
+      console.log(this.state.account_list);
+    }).catch((err)=>{
+      console.log(err)
+    })
+  }
+  componentWillUnmount = () => {
     sqlite.close()
   }
-
   render() {
     const dropdown_6_icon = this.state.dropdown_6_icon_heart ? require('./images/heart.png') : require('./images/flower.png');
     return (
       <View style={styles.container}>
         <View style={styles.row}>
           <View style={styles.cell}>
-            <Text>{this.state.to_account}</Text>
             <ModalDropdown style={styles.dropdown_1}
                            options={DEMO_OPTIONS_1}
-            >
-              <Text>常用地址</Text>
-            </ModalDropdown>
+            />
             <ModalDropdown style={styles.dropdown_6}
                            options={DEMO_OPTIONS_1}
                            onSelect={(idx, value) => this._dropdown_6_onSelect(idx, value)}>
@@ -68,13 +88,170 @@ export default class APITest extends Component {
               />
             </ModalDropdown>
           </View>
+          <View style={styles.cell}>
+            <ModalDropdown ref="dropdown_2"
+                           style={styles.dropdown_2}
+                           textStyle={styles.dropdown_2_text}
+                           dropdownStyle={styles.dropdown_2_dropdown}
+                           options={DEMO_OPTIONS_2}
+                           renderButtonText={(rowData) => this._dropdown_2_renderButtonText(rowData)}
+                           renderRow={this._dropdown_2_renderRow.bind(this)}
+                           renderSeparator={(sectionID, rowID, adjacentRowHighlighted) => this._dropdown_2_renderSeparator(sectionID, rowID, adjacentRowHighlighted)}
+            />
+            <TouchableOpacity onPress={() => {
+              this.refs.dropdown_2.select(0);
+            }}>
+              <Text style={styles.textButton}>
+                select Rex
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        <View style={styles.row}>
+          <ScrollView ref={el => this._scrollView = el}
+                      style={styles.scrollView}
+                      contentContainerStyle={styles.contentContainer}
+                      showsVerticalScrollIndicator={true}
+                      scrollEventThrottle={1}>
+            <Text>
+              {'Scroll view example.'}
+            </Text>
+            <ModalDropdown ref={el => this._dropdown_3 = el}
+                           style={styles.dropdown_3}
+                           options={DEMO_OPTIONS_1}
+                           adjustFrame={style => this._dropdown_3_adjustFrame(style)}
+                           dropdownTextStyle={styles.dropdown_3_dropdownTextStyle}
+                           dropdownTextHighlightStyle={styles.dropdown_3_dropdownTextHighlightStyle}
+            />
+          </ScrollView>
+        </View>
+        <View style={styles.row}>
+          <View style={[styles.cell, {justifyContent: 'flex-end'}]}>
+            <ModalDropdown style={styles.dropdown_4}
+                           dropdownStyle={styles.dropdown_4_dropdown}
+                           options={this.state.dropdown_4_options}
+                           defaultIndex={-1}
+                           defaultValue={this.state.dropdown_4_defaultValue}
+                           onDropdownWillShow={this._dropdown_4_willShow.bind(this)}
+                           onDropdownWillHide={this._dropdown_4_willHide.bind(this)}
+                           onSelect={(idx, value) => this._dropdown_4_onSelect(idx, value)}
+            />
+          </View>
+          <View style={[styles.cell, {justifyContent: 'flex-end'}]}>
+            <TouchableOpacity onPress={this._dropdown_5_show.bind(this)}>
+              <Text style={styles.textButton}>
+                {'Show dropdown'}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => this._dropdown_5_select(2)}>
+              <Text style={styles.textButton}>
+                {'Select the 3rd option'}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => this._dropdown_5_select(-1)}>
+              <Text style={styles.textButton}>
+                {'Clear selection'}
+              </Text>
+            </TouchableOpacity>
+            <ModalDropdown ref={el => this._dropdown_5 = el}
+                           style={styles.dropdown_5}
+                           options={['Select me to hide', `I can't be selected`, 'I can only be selected outside']}
+                           defaultValue='Try the Show button above'
+                           onDropdownWillShow={this._dropdown_5_willShow.bind(this)}
+                           onDropdownWillHide={this._dropdown_5_willHide.bind(this)}
+                           onSelect={this._dropdown_5_onSelect.bind(this)}
+            />
+          </View>
         </View>
       </View>
     )
   }
+  _dropdown_2_renderButtonText(rowData) {
+    const {name, age} = rowData;
+    return `${name} - ${age}`;
+  }
+
+  _dropdown_2_renderRow(rowData, rowID, highlighted) {
+    let icon = highlighted ? require('./images/heart.png') : require('./images/flower.png');
+    let evenRow = rowID % 2;
+    return (
+      <TouchableHighlight underlayColor='cornflowerblue'>
+        <View style={[styles.dropdown_2_row, {backgroundColor: evenRow ? 'lemonchiffon' : 'white'}]}>
+          <Image style={styles.dropdown_2_image}
+                 mode='stretch'
+                 source={icon}
+          />
+          <Text style={[styles.dropdown_2_row_text, highlighted && {color: 'mediumaquamarine'}]}>
+            {`${rowData.name} (${rowData.age})`}
+          </Text>
+        </View>
+      </TouchableHighlight>
+    );
+  }
+
+  _dropdown_2_renderSeparator(sectionID, rowID, adjacentRowHighlighted) {
+    if (rowID == DEMO_OPTIONS_1.length - 1) return;
+    let key = `spr_${rowID}`;
+    return (<View style={styles.dropdown_2_separator}
+                  key={key}
+    />);
+  }
+
+  _dropdown_3_adjustFrame(style) {
+    console.log(`frameStyle={width:${style.width}, height:${style.height}, top:${style.top}, left:${style.left}, right:${style.right}}`);
+    style.top -= 15;
+    style.left += 150;
+    return style;
+  }
+
+  _dropdown_4_willShow() {
+    setTimeout(() => this.setState({
+      dropdown_4_options: DEMO_OPTIONS_1,
+      dropdown_4_defaultValue: 'loaded',
+    }), 2000);
+  }
+
+  _dropdown_4_willHide() {
+    this.setState({
+      dropdown_4_options: null,
+      dropdown_4_defaultValue: 'loading',
+    });
+  }
+
+  _dropdown_4_onSelect(idx, value) {
+    // BUG: alert in a modal will auto dismiss and causes crash after reload and touch. @sohobloo 2016-12-1
+    //alert(`idx=${idx}, value='${value}'`);
+    console.debug(`idx=${idx}, value='${value}'`);
+  }
+
+  _dropdown_5_show() {
+    this._dropdown_5 && this._dropdown_5.show();
+  }
+
+  _dropdown_5_select(idx) {
+    this._dropdown_5 && this._dropdown_5.select(idx);
+  }
+
+  _dropdown_5_willShow() {
+    return false;
+  }
+
+  _dropdown_5_willHide() {
+    let idx = this._dropdown_5_idx;
+    this._dropdown_5_idx = undefined;
+    return idx == 0;
+  }
+
+  _dropdown_5_onSelect(idx, value) {
+    this._dropdown_5_idx = idx;
+    if (this._dropdown_5_idx != 0) {
+      return false;
+    }
+  }
+
   _dropdown_6_onSelect(idx, value) {
     this.setState({
-      to_account : value,
+      dropdown_6_icon_heart: !this.state.dropdown_6_icon_heart,
     })
   }
 }

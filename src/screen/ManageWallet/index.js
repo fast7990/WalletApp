@@ -2,6 +2,14 @@ import React, { Component } from 'react';
 import {StyleSheet, Text, View, TextInput, ListView, Image, TouchableHighlight} from 'react-native';
 import TitleBar from '../../components/TitleBar';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import {link} from "../../actions/navActions";
+import {connect} from "react-redux";
+
+@connect((store) => {
+  return {
+
+  }
+})
 
 export default class ManageWallet extends Component {
   constructor(props) {
@@ -13,8 +21,8 @@ export default class ManageWallet extends Component {
     };
   }
 
-  onBackupPressed(){
-    this.props.navigation.navigate('BackupKey')
+  onBackupPressed = () => {
+    this.props.dispatch(link('BackupKey'))
   }
 
   renderOpretion(imageSource, text){
@@ -61,11 +69,6 @@ export default class ManageWallet extends Component {
             dataSource={this.state.dataSource}
             renderRow={this.renderRow.bind(this)}
           />
-          <View style={styles.bottomContainer}>
-            {this.renderOpretion("arrow-down" ,'导入钱包')}
-            {this.renderOpretion("plus" ,'创建钱包')}
-            {/* {this.renderOpretion(require("'./images/right.jpg'") ,'创建钱包')} */}
-          </View>
         </View>
       );
   }

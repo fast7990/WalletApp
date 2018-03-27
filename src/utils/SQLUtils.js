@@ -540,17 +540,27 @@ class SQLUtiles {
       this.open();
       this.db.transaction(
         (tx) => {
-          let sql = "SELECT TO_ACCOUNT FROM ACTIONHISTORY WHERE ACTIONNAME = 'sendeth'"
+          let sql = "SELECT TO_ACCOUNT FROM ACTIONHISTORY WHERE ACTIONNAME = 'sendeth' OR  ACTIONNAME = 'sendtoken'"
           tx.executeSql(
             sql, [], (tx, results) => {
               console.log('getSendEthToAccount succeed')
-              let wallets = []
+              let wallets = [];
               for (let i = 0; i < results.rows.length; i++) {
                 wallets.push(results.rows.item(i))
               }
+              let result = [];
+              for(let i=0;i<wallets.length;i++){
+                for(let j=i+1;j<wallets.length;j++){
+                  if(wallets[i].to_account === wallets[j].to_account){
+                    j = ++i;
+                  }
+                }
+                result.push(wallets[i]);
+              }
+              console.log(result)
               //关闭连接
               //this.close();
-              resolve(wallets);
+              resolve(result);
               //this.httpRequest2(item.account)
             }, (err) => {
               console.log(err);

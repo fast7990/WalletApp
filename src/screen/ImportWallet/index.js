@@ -36,6 +36,18 @@ export default class ImportWallet extends Component {
     this.setState({confirmPassword: text});
   }
   onPressImport = () => {
+    if(!web3.validateIfEmpty(this.state.keystore)){
+      ToastAndroid.show('私钥不能为空', ToastAndroid.SHORT);
+      return;
+    }
+    else if(!web3.validateIfEmpty(this.state.account)){
+      ToastAndroid.show('账户不能为空', ToastAndroid.SHORT);
+      return;
+    }
+    else if(!web3.validateIfEmpty(this.state.password)){
+      ToastAndroid.show('密码不能为空', ToastAndroid.SHORT);
+      return;
+    }
     if (this.state.password != this.state.confirmPassword) {
       ToastAndroid.show('两次密码不一致', ToastAndroid.SHORT);
       return;

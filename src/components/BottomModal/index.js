@@ -2,38 +2,43 @@ import React, { Component } from 'react';
 import {StyleSheet, Text, View, TextInput, Modal, TouchableOpacity, Dimensions} from 'react-native';
 import SubmitButton from '../SubmitButton';
 import Icon from 'react-native-vector-icons/FontAwesome';
-
+import web3API from '../../utils/web3API'
+let web3 = new web3API()
 export default class BottomModal extends Component {
   static defaultProps={
-    visible:'',
+    visible:false,
     amountName: '',
     toAccount: '',
     sendNum: '',
     onPressConfirm: null,
+    isPassword:true,
+    onPasswordError: null,
+    password:'',
   };
-
   constructor(props) {
     super(props);
     this.state = {
-      password: '',
+      password: this.props.password,
       visible: this.props.visible,
-      isPassword: true,
+      isPassword: this.props.isPassword,
       toAccount: this.props.toAccount,
+      password:this.props.password,
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.setState({visible: nextProps.visible, toAccount: nextProps.toAccount});
+  componentDidMount() {
+    console.log(this.state.isPassword)
   }
 
+  componentWillReceiveProps(nextProps) {
+    this.setState({visible: nextProps.visible, toAccount: nextProps.toAccount, isPassword:nextProps.isPassword, password:nextProps.password});
+  }
   setVisible(visible) {
     this.setState({visible: visible, isPassword: true, password: ''});
   }
-
   setToAccount(text){
     this.setState({toAccount: text});
   }
-
   onPressNext() {
     if(this.state.password) {
       this.setState({isPassword: false});
@@ -41,11 +46,9 @@ export default class BottomModal extends Component {
       this.setVisible(false);
     }
   }
-
   onPressConfirmSend() {
     this.props.onPressConfirm(this.state.toAccount, this.state.password);
   }
-
   renderItem(text, placeholder, changeInput) {
     return(
       <View>
@@ -62,7 +65,6 @@ export default class BottomModal extends Component {
       </View>
     );
   }
-
   renderModalTitle(title) {
     return(
       <View style={styles.titleContainer}>
@@ -78,7 +80,6 @@ export default class BottomModal extends Component {
       </View>
     );
   }
-
   renderConfirm() {
     return(
       <View style={styles.confirmContainer}>
@@ -88,7 +89,7 @@ export default class BottomModal extends Component {
           <Text style={styles.amountNumText}>{this.props.sendNum}</Text>
         </View>
         <Text/>
-        {this.renderItem('对方账户', this.state.toAccount, this.setToAccount.bind(this))}
+        {this.renderItem('对方账户',web3.getShortAccount(this.state.toAccount), this.setToAccount.bind(this))}
         {/*{this.renderItem('备注MEMO','')}*/}
         <SubmitButton
           buttonText={'发送'}
@@ -97,7 +98,6 @@ export default class BottomModal extends Component {
         />
       </View>);
   }
-
   renderPassword() {
     return(
       <View style={styles.passwordContainer}>

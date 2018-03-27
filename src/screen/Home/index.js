@@ -141,10 +141,7 @@ export default class HomeScreen extends React.Component {
   }
 
   renderItem = (account, value) => {
-    let str = ''
-    if(account != undefined){
-      str= account.substring(0,5)+"..."+ account.substring(account.length-5,account.length);
-    }
+    let str = web3.getShortAccount(account);
     return(
       <View style={styles.itemContainer}>
         <Text>{str}</Text>

@@ -1,5 +1,8 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, TextInput, Modal, TouchableOpacity, Dimensions, Alert} from 'react-native';
+import {
+  StyleSheet, Text, View, TextInput, Modal, TouchableOpacity, Dimensions, Alert,
+  ToastAndroid
+} from 'react-native';
 import TitleBar from '../../components/TitleBar'
 import SubmitButton from '../../components/SubmitButton'
 import Line from '../../components/Line'
@@ -72,8 +75,8 @@ export default class SearchInformation extends Component {
           } else if (msg.data.code == 2) {
             Alert.alert("密码错误，请重新输入!");
             return;
-          } else if (msg.data.code == 3) {
-            Alert.alert(msg.data.msg);
+          }else if (msg.data.code == 3) {
+            Alert.alert("发生意外!"+msg.data.msg);
             return;
           }
           else {
@@ -88,9 +91,18 @@ export default class SearchInformation extends Component {
     })
   }
   onPressConfirm() {
+
     this.setState({isPassword: true});
   }
   onPressSearch() {
+    if(!web3.validateIfEmpty(this.state.user_card)){
+      ToastAndroid.show('身份证号不能为空', ToastAndroid.SHORT);
+      return;
+    }
+    else if(!web3.validateCardNum(this.state.carNum)){
+      ToastAndroid.show('身份证号长度不对，或者号码不符合规定！', ToastAndroid.SHORT);
+      return;
+    }
     this.setState({resultVisible: false, modalVisible: true});
   }
   renderItem(text,value) {

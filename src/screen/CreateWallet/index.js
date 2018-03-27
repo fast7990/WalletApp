@@ -40,8 +40,16 @@ export default class CreateWallet extends Component {
   onPressNext=()=> {
     let  account_name = this.state.account;
     let  password = this.state.confirmPassword;
+    if(!web3.validateName(account_name)) {
+      ToastAndroid.show('账户名少于四位', ToastAndroid.SHORT);
+      return;
+    }
     if( this.state.password != password){
       ToastAndroid.show('两次密码不一致', ToastAndroid.SHORT);
+      return;
+    }
+    if(!web3.validatePassword(this.state.password)){
+      ToastAndroid.show('密码格式错误！', ToastAndroid.SHORT);
       return;
     }
     web3.newWallet(account_name, password ).then((msg)=>{
@@ -65,7 +73,7 @@ export default class CreateWallet extends Component {
                       })
                   }
               } else {
-                  Alert.alert("发生意外错误！" ,msg.msg);
+                  Alert.alert("发生意外错误！" ,msg.data.msg);
               }
           } else {
               Alert.alert("发生意外错误！");
@@ -107,7 +115,7 @@ export default class CreateWallet extends Component {
             {/*value={this.state.account}*/}
           {/*/>*/}
         {/*</View>*/}
-        {this.renderItem('账户名', '输入字母加数字的组合', false, this.setAccount.bind(this), styles.accountContainer)}
+        {this.renderItem('账户名', '汉字、字母、数字的组合不少于4位', false, this.setAccount.bind(this), styles.accountContainer)}
         {this.renderItem('密码', '', true, this.setPassword.bind(this))}
         {this.renderItem('确认密码', '', true, this.setConfirmPassword.bind(this))}
         <SubmitButton

@@ -8,61 +8,59 @@ import ErrorText from '../../components/ErrorText';
 import {connect} from 'react-redux'
 import {link} from '../../actions/navActions'
 import SQLUtils from '../../utils/SQLUtils'
-
 let sqlite = new SQLUtils()
 import web3API from '../../utils/web3API'
-
 let web3 = new web3API()
+
 @connect((store) => {
   return {}
 })
-
 export default class SendToken extends Component {
-
   constructor(props) {
     super(props);
     this.state = {
       wallet: {},
       myAccount: '',
+      shortAccount:'',
       toAccount: '',
       sendNum: '',
       mark: '',
       modalVisible: false,
       error: '',
+      password: '',
+      isPassword: true,
     };
   }
-
+  onPasswordError(msg){
+    this.setState({error:msg, modalVisible:false})
+  }
   componentDidMount = () => {
     sqlite.getCurrentWallet().then((data) => {
       //Alert.alert(data.account)
+      let str = web3.getShortAccount(data.account);
       this.setState({myAccount: data.account});
+      this.setState({shortAccount: str});
       this.setState({wallet: data});
       console.log(data)
       console.log(this.state.myAccount)
 
     })
   }
-
   componentWillUnmount = () => {
     sqlite.close()
   }
-
   setMyAccount(text) {
     this.setState({myAccount: text});
   }
-
   setToAccount(text) {
     this.setState({toAccount: text});
   }
-
   setSendNum(text) {
     this.setState({sendNum: text});
   }
-
   onPressConfirmSend = (toAccount, password) => {
     //wallet, user_card, user_mobile,password
     let user_card = "22222"
-
     web3.sendToken(this.state.wallet.keystore,this.state.myAccount, toAccount, password, this.state.sendNum, "").then((msg) => {
       if (msg != null) {
         console.log(msg)
@@ -86,9 +84,12 @@ export default class SendToken extends Component {
           this.setState({modalVisible: false});
           Alert.alert('提交成功 ！');
           this.props.dispatch(link('Home'));
-        } else {
+        } else if (msg.data.code == 2) {
+          Alert.alert("密码错误，请重新输入!");
+          return;
+        }else {
           this.setState({modalVisible: false});
-          Alert.alert("发生意外！" + msg.msg);
+          Alert.alert("发生意外！" + msg.data.msg);
         }
       }
     }).catch((err) => {
@@ -97,11 +98,23 @@ export default class SendToken extends Component {
       this.props.dispatch(link('Home'));
     })
   }
-
   onPressSend() {
-    this.setState({modalVisible: true, error: '123456'});
+    if(!web3.validateAccount(this.state.toAccount)){
+      this.setState({error: '对方账户格式有错误'})
+      return;
+    }
+    else if(!web3.validateIfEmpty(this.state.sendNum)){
+      this.setState({error: '发送数量不能为空'})
+      return;
+    }
+    else if(!web3.validateNumber(this.state.sendNum)){
+      this.setState({error: '发送数量必须为数字'});
+      return;
+    }
+    else {
+      this.setState({modalVisible: true, error: ''})
+    }
   }
-
   renderItem(text, placeholder, hasImage, source, editable, changeInput, value) {
     return (
       <View>
@@ -135,7 +148,6 @@ export default class SendToken extends Component {
       </View>
     );
   }
-
   render() {
     return (
       <View style={styles.container}>
@@ -144,14 +156,16 @@ export default class SendToken extends Component {
           visible={this.state.modalVisible}
           toAccount={this.state.toAccount}
           sendNum={this.state.sendNum}
+          password={this.state.password}
           onPressConfirm={this.onPressConfirmSend.bind(this)}
+          onPasswordError={this.onPasswordError.bind(this)}
         />
         <View style={styles.mainContainer}>
           <TitleBar title='发送Token' type='0'/>
           <View style={styles.inputContainer}>
-            {this.renderItem('发送账户', '发送账户', true, false, false, this.setMyAccount.bind(this), this.state.myAccount)}
+            {this.renderItem('发送账户', '发送账户', true, false, false, this.setMyAccount.bind(this), this.state.shortAccount)}
             {this.renderItem('对方账户', '填写对方账号', true, true, true, this.setToAccount.bind(this))}
-            {this.renderItem('发送数量', '填写eth数量', false, false, true, this.setSendNum.bind(this))}
+            {this.renderItem('发送数量', '填写token数量', false, false, true, this.setSendNum.bind(this))}
           </View>
           {/*<View style={styles.itemContainer}>*/}
           {/*<Text style={[styles.text, styles.markText]}>备注(MEMO)</Text>*/}
@@ -169,7 +183,6 @@ export default class SendToken extends Component {
     );
   }
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -223,4 +236,3 @@ const styles = StyleSheet.create({
     width: 40,
   },
 });
-  
