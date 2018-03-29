@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, TextInput, Image, TouchableOpacity, Alert} from 'react-native';
+import {StyleSheet, Text, View, TextInput, Image, TouchableOpacity, Alert, DeviceEventEmitter} from 'react-native';
 import TitleBar from '../../components/TitleBar';
 import SubmitButton from '../../components/SubmitButton';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -35,20 +35,33 @@ export default class SendToken extends Component {
     this.setState({error:msg, modalVisible:false})
   }
   componentDidMount = () => {
+    this.getData();
+  }
+  componentWillUnmount = () => {
+    sqlite.close();
+  }
+  getData = () => {
     sqlite.getCurrentWallet().then((data) => {
       //Alert.alert(data.account)
       let str = web3.getShortAccount(data.account);
       this.setState({myAccount: data.account});
       this.setState({shortAccount: str});
       this.setState({wallet: data});
-      console.log(data)
-      console.log(this.state.myAccount)
-
+      console.log(data);
+      console.log(this.state.myAccount);
+    }).catch((err)=>{
+      console.log(err);
     })
   }
-  componentWillUnmount = () => {
-    sqlite.close()
+
+  onQRCallback = (data) => {
+    this.setState(data)
   }
+  popToHome = (emitterValue) => {
+    DeviceEventEmitter.emit('WALLET', emitterValue);
+    this.props.navigation.popToTop();
+  }
+
   setMyAccount(text) {
     this.setState({myAccount: text});
   }
@@ -83,7 +96,8 @@ export default class SendToken extends Component {
         if (msg.data.code == 1) {
           this.setState({modalVisible: false});
           Alert.alert('提交成功 ！');
-          this.props.dispatch(link('Home'));
+          this.popToHome('success');
+          //this.props.dispatch(link('Home'));
         } else if (msg.data.code == 2) {
           Alert.alert("密码错误，请重新输入!");
           return;
@@ -95,7 +109,8 @@ export default class SendToken extends Component {
     }).catch((err) => {
       this.setState({modalVisible: false});
       Alert.alert("发生意外错误！");
-      this.props.dispatch(link('Home'));
+      this.popToHome('fail');
+      //this.props.dispatch(link('Home'));
     })
   }
   onPressSend() {
@@ -136,7 +151,7 @@ export default class SendToken extends Component {
             activeOpacity={0.5}
             style={styles.close}
             onPress={() => {
-              this.props.dispatch(link('Scanner'))
+              this.props.navigation.navigate('QRTest',{ onQRCallback: this.onQRCallback });
             }}
           >
             <FontAwesome name="question-circle" size={40}/>
@@ -159,12 +174,13 @@ export default class SendToken extends Component {
           password={this.state.password}
           onPressConfirm={this.onPressConfirmSend.bind(this)}
           onPasswordError={this.onPasswordError.bind(this)}
+          onCloseVisible={() => {this.setState({modalVisible: false, password: ''})}}
         />
         <View style={styles.mainContainer}>
           <TitleBar title='发送Token' type='0'/>
           <View style={styles.inputContainer}>
             {this.renderItem('发送账户', '发送账户', true, false, false, this.setMyAccount.bind(this), this.state.shortAccount)}
-            {this.renderItem('对方账户', '填写对方账号', true, true, true, this.setToAccount.bind(this))}
+            {this.renderItem('对方账户', '填写对方账号', true, true, true, this.setToAccount.bind(this), this.state.toAccount)}
             {this.renderItem('发送数量', '填写token数量', false, false, true, this.setSendNum.bind(this))}
           </View>
           {/*<View style={styles.itemContainer}>*/}

@@ -1,8 +1,6 @@
 import axios from 'axios'
-import {AsyncStorage} from 'react-native'
 import SQLUtils from './SQLUtils'
 let sqlite = new SQLUtils()
-import storage from './AsyncStorageUtil'
 class APIUtils {
   constructor(global_keystore = null,
               tokenContract = null,

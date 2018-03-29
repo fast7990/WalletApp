@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {
   StyleSheet, Text, View, TextInput, Modal, TouchableOpacity, Dimensions, Alert,
-  ToastAndroid
+  ToastAndroid, DeviceEventEmitter
 } from 'react-native';
 import TitleBar from '../../components/TitleBar'
 import SubmitButton from '../../components/SubmitButton'
@@ -39,6 +39,12 @@ export default class SearchInformation extends Component {
   componentWillUnmount = () => {
     sqlite.close();
   }
+
+  popToHome = (emitterValue) => {
+    DeviceEventEmitter.emit('WALLET', emitterValue);
+    this.props.navigation.popToTop();
+  }
+
   setModalVisible(visible) {
     this.setState({modalVisible: visible, isPassword: false, password: ''});
   }
@@ -86,7 +92,8 @@ export default class SearchInformation extends Component {
         }
       }).catch((err) => {
         Alert.alert("发生意外错误！");
-        this.props.dispatch(link('Home'));
+        this.popToHome('fail');
+        //this.props.dispatch(link('Home'));
       })
     })
   }

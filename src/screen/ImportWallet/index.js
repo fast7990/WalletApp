@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, TextInput, Alert, ToastAndroid} from 'react-native';
+import {StyleSheet, Text, View, TextInput, Alert, ToastAndroid, DeviceEventEmitter } from 'react-native';
 import TitleBar from '../../components/TitleBar'
 import SubmitButton from '../../components/SubmitButton'
 import SQLUtils from '../../utils/SQLUtils'
@@ -26,6 +26,12 @@ export default class ImportWallet extends Component {
   componentDidMount = () => {
     sqlite.close()
   }
+
+  popToHome = (emitterValue) => {
+    DeviceEventEmitter.emit('WALLET', emitterValue);
+    this.props.navigation.popToTop();
+  }
+
   setAccount(text) {
     this.setState({account: text});
   }
@@ -84,10 +90,12 @@ export default class ImportWallet extends Component {
             sqlite.insertWallets(data.data).then((msg) => {
               if (msg == "1") {
                 Alert.alert('导入成功 ！');
-                this.props.dispatch(link('Home'));
+                this.popToHome('success');
+                //this.props.dispatch(link('Home'));
               } else {
                 Alert.alert("插入账号数据发生意外错误！");
-                this.props.dispatch(link('Home'));
+                this.popToHome('success');
+                //this.props.dispatch(link('Home'));
               }
             }).catch((err) => {
               Alert.alert("插入账号数据发生意外错误！", err);
@@ -98,11 +106,13 @@ export default class ImportWallet extends Component {
         }
       } else {
         Alert.alert("发生意外错误！");
-        this.props.dispatch(link('Home'));
+        this.popToHome('fail');
+        //this.props.dispatch(link('Home'));
       }
     }).catch((err) => {
       Alert.alert("发生意外错误！");
-      this.props.dispatch(link('Home'));
+      this.popToHome('fail');
+      //this.props.dispatch(link('Home'));
     })
   }
   renderItem(text, password, isPassword, changeInput) {

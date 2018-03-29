@@ -13,6 +13,7 @@ export default class BottomModal extends Component {
     onPressConfirm: null,
     isPassword:true,
     onPasswordError: null,
+    onCloseVisible: null,
     password:'',
   };
   constructor(props) {
@@ -73,7 +74,7 @@ export default class BottomModal extends Component {
         <TouchableOpacity
           activeOpacity={0.5}
           style={styles.close}
-          onPress={this.setVisible.bind(this, false)}
+          onPress={this.props.onCloseVisible}
         >
           <Icon name="times" size={35} color='gray'/>
         </TouchableOpacity>

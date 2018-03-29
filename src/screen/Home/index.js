@@ -1,7 +1,7 @@
 import React from 'react'
 import {
   Button, View, Text, PixelRatio, StyleSheet, TouchableHighlight, Image, ViewPagerAndroid,
-  Dimensions, Alert
+  Dimensions, Alert, DeviceEventEmitter
 } from 'react-native'
 import Drawer from 'react-native-drawer'
 import Menu from '../../components/Menu'
@@ -26,6 +26,23 @@ export default class HomeScreen extends React.Component {
     };
   }
   componentDidMount = () => {
+    this.getData();
+    this.importwalletEmitter = DeviceEventEmitter.addListener('WALLET', (result) => {
+      if(result == 'success' || result == 'render') {
+        this.getData();
+      }
+      this.closeControlPanel();
+    });
+  }
+
+  componentWillUnmount = () => {
+    this.importwalletEmitter.remove();
+    sqlite.close()
+  }
+  _onQRCodePressed = () => {
+    this.props.dispatch(link("QRCode"))
+  }
+  getData(){
     //得到所有钱包
     sqlite.getAllWallets().then((wallets) => {
       if (wallets != null) {
@@ -49,15 +66,21 @@ export default class HomeScreen extends React.Component {
         })
         web3.getBalances(wallets[0].account).then((msg) => {
           if(msg.data.code){
-             this.setState({dataSource: msg.data});
+            this.setState({dataSource: msg.data});
           }
         }).catch((err)=>{  })
       }
     }).catch((err)=>{})
   }
 
-  componentWillUnmount = () => {
-    sqlite.close()
+  pushToAccount() {
+    this.props.navigation.navigate('AccountInformation',
+      {
+        name: this.state.wallets && this.state.wallets[this.state.page].name,
+        account: this.state.dataSource && this.state.dataSource.data.account,
+        eth: this.state.dataSource && this.state.dataSource.data.eth
+      }
+    );
   }
 
   closeControlPanel = () => {
@@ -123,10 +146,12 @@ export default class HomeScreen extends React.Component {
                 {this.state.wallets[i].name}
             </Text>
             }
+            <TouchableHighlight onPress={this._onQRCodePressed}>
             <Image
               style={styles.header_down_info_icon}
               source={require('./img/icon4.png')}
             />
+            </TouchableHighlight>
           </View>
           <View style={styles.header_down_label}>
             <Text style={styles.header_down_label_style}>
@@ -155,7 +180,7 @@ export default class HomeScreen extends React.Component {
     return (
       <Drawer
         type="static"
-        content={<Menu/>}
+        content={<Menu pushToAccount={this.pushToAccount.bind(this)}/>}
         tapToClose={true}
         ref={(ref) => this._drawer = ref}
         openDrawerOffset={(viewport) => {

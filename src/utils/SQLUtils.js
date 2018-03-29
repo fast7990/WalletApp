@@ -598,6 +598,37 @@ class SQLUtiles {
       )
     })
   }
+
+  //查找交易记录
+  getHistoryRecord(){
+    return new Promise((resolve, reject) => {
+      this.open();
+      this.db.transaction(
+        (tx) => {
+          let sql = "SELECT TO_ACCOUNT,FROM_ACCOUNT,OPTION,OPTTIME,ACTIONNAME " +
+            "FROM ACTIONHISTORY WHERE ACTIONNAME = 'sendeth' OR  ACTIONNAME = 'sendtoken' "+
+            "ORDER BY OPTTIME DESC"
+          tx.executeSql(
+            sql, [], (tx, results) => {
+              console.log('getSendEthToAccount succeed')
+              let records = [];
+              for (let i = 0; i < results.rows.length; i++) {
+                records.push(results.rows.item(i))
+              }
+              console.log(records)
+              //关闭连接
+              //this.close();
+              resolve(records);
+              //this.httpRequest2(item.account)
+            }, (err) => {
+              console.log(err);
+              reject(err)
+            }
+          )
+        }
+      )
+    })
+  }
 }
 
 export default SQLUtiles

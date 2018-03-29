@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, TextInput, Dimensions, Alert,TouchableOpacity, TouchableHighlight} from 'react-native';
+import {StyleSheet, Text, View, TextInput, Dimensions, Alert,TouchableOpacity,
+  TouchableHighlight, DeviceEventEmitter} from 'react-native';
 import TitleBar from '../../components/TitleBar';
 import SubmitButton from '../../components/SubmitButton';
 import BottomModal from '../../components/BottomModal';
@@ -59,6 +60,13 @@ export default class SendEth extends Component {
   componentWillUnmount = () => {
     sqlite.close()
   }
+  onQRCallback = (data) => {
+    this.setState(data)
+  }
+  popToHome = (emitterValue) => {
+    DeviceEventEmitter.emit('WALLET', emitterValue);
+    this.props.navigation.popToTop();
+  }
   setMyAccount(text) {
     this.setState({myAccount: text});
   }
@@ -117,7 +125,8 @@ export default class SendEth extends Component {
         if (msg.data.code == 1) {
           this.setState({modalVisible: false});
           Alert.alert("提交成功 ");
-          this.props.dispatch(link('Home'));
+          this.popToHome('success');
+          //this.props.dispatch(link('Home'));
           return;
         } else if (msg.data.code == 2) {
           this.setState({modalVisible: false, isPassword: true, password:''});
@@ -132,9 +141,18 @@ export default class SendEth extends Component {
     }).catch((err) => {
       this.setState({modalVisible: false, isPassword: true, password:''});
       Alert.alert("发生意外错误！");
-      this.props.dispatch(link('Home'));
+      this.popToHome('fail');
+      //this.props.dispatch(link('Home'));
     })
   }
+  /*
+  <ModalDropdown
+    options={this.state.account_short_list}
+    onSelect={(idx, value) => this._onDropdownSelect(idx, value)}
+    renderRow={this._renderRow}
+  >
+    <FontAwesome name="question-circle" size={40}/>
+  </ModalDropdown>*/
   renderItem2(text, placeholder, hasImage, source, editable, changeInput, value) {
     return (
       <View>
@@ -152,13 +170,16 @@ export default class SendEth extends Component {
           <FontAwesome name="question-circle" size={40}/>
           }
           {hasImage && source &&
-          <ModalDropdown
-            options={this.state.account_short_list}
-            onSelect={(idx, value) => this._onDropdownSelect(idx, value)}
-            renderRow={this._renderRow}
+          <TouchableOpacity
+            activeOpacity={0.5}
+            style={styles.close}
+            onPress={() => {
+              this.props.navigation.navigate('QRTest',{ onQRCallback: this.onQRCallback });
+            }}
           >
             <FontAwesome name="question-circle" size={40}/>
-          </ModalDropdown>
+            {/*<Image style={styles.iconImage} source={source}/>*/}
+          </TouchableOpacity>
           }
         </View>
         <View style={styles.grayLine}/>
@@ -193,6 +214,7 @@ export default class SendEth extends Component {
           password={this.state.password}
           onPressConfirm={this.onPressConfirmSend.bind(this)}
           onPasswordError={this.onPasswordError.bind(this)}
+          onCloseVisible={() => {this.setState({modalVisible: false, password: ''})}}
         />
         <View style={styles.mainContainer}>
           <TitleBar title='发送Eth' type='0'/>

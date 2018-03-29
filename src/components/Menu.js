@@ -11,6 +11,9 @@ import { link } from '../actions/navActions'
 })
 
 export default class Menu extends React.Component {
+  static defaultProps={
+    pushToAccount:null,
+  }
 	constructor(props){
 		super(props)
 	}
@@ -37,11 +40,12 @@ export default class Menu extends React.Component {
 		}else if(item.id === '7') {
 			dispatch(link('PrivateKey'))
 		}else if(item.id === '8') {
-			dispatch(link('APITest'))
+      this.props.pushToAccount();
+      //dispatch(link('AccountInformation'))
 		}else if(item.id === '9') {
 			dispatch(link('Mnemonic'))
 		}else if(item.id === '10') {
-			dispatch(link('SQLTest2'))
+			dispatch(link('MyProperty'))
 		}
 	}
 	renderItemHeader = ({item}) => (
@@ -74,9 +78,9 @@ export default class Menu extends React.Component {
 			{'id': '7','name': '身份信息', 'icon': 'info'}
 		]
 		let C = [
-			{'id': '8','name': '修改密码', 'icon': 'key'},
+			{'id': '8','name': '账户管理', 'icon': 'key'},
 			{'id': '9','name': '助记词', 'icon': 'sticky-note'},
-			{'id': '10','name': 'language', 'icon': 'language'},
+			{'id': '10','name': '我的资产', 'icon': 'language'},
 		] 
 		return (
 			<View style={{flex: 1, backgroundColor: '#fff'}}>

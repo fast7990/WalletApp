@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, TextInput, Alert, ToastAndroid} from 'react-native';
+import {StyleSheet, Text, View, TextInput, Alert, ToastAndroid, DeviceEventEmitter} from 'react-native';
 import TitleBar from '../../components/TitleBar'
 import SubmitButton from '../../components/SubmitButton'
 import SQLUtils from '../../utils/SQLUtils'
@@ -36,6 +36,12 @@ export default class ImportInformation extends Component {
   componentWillUnmount = () => {
     sqlite.close()
   }
+
+  popToHome = (emitterValue) => {
+    DeviceEventEmitter.emit('WALLET', emitterValue);
+    this.props.navigation.popToTop();
+  }
+
   onPressSubmit = () => {
     if(!web3.validateIfEmpty(this.state.name)){
       ToastAndroid.show('姓名不能为空', ToastAndroid.SHORT);
@@ -91,7 +97,8 @@ export default class ImportInformation extends Component {
         })
         if (msg.data.code == 1) {
           Alert.alert("提交成功 ");
-          this.props.dispatch(link('Home'));
+          this.popToHome('success');
+          //this.props.dispatch(link('Home'));
           return;
         }else if (msg.data.code == 2) {
           Alert.alert("密码或钥匙串错误，请重新输入!");

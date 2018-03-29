@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
-import {StyleSheet, Text, View, TouchableHighlight} from 'react-native'
+import {StyleSheet, Text, View, TouchableHighlight, DeviceEventEmitter} from 'react-native'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { connect } from 'react-redux'
 import { link } from '../../actions/navActions'
+import {NavigationActions } from 'react-navigation';
+
 @connect((store) => {
 	return {
 		nav : store.nav
@@ -13,20 +15,23 @@ export default class TitleBar extends Component {
 
 	static defaultProps={  
 		title:'',
+    renderRight: null,
 	}
-    constructor(props) {
+  constructor(props) {
 		super(props)
-    }
+  }
 	_onBackButton = () => {
 		const { dispatch, name, type , nav } = this.props
 		console.log(nav)
-		let navArray = nav.routes
-		let lastRoute = navArray[navArray.length - 2].routeName
-		//console.log(lastRoute)
+		// let navArray = nav.routes
+		// let lastRoute = navArray[navArray.length - 2].routeName
 		if( type === '0' ){
-			 dispatch(link(lastRoute))
+      dispatch(NavigationActions.back());
+      //dispatch(link(lastRoute))
 		}else if( type === '1' ){
-			dispatch(link(name))
+      DeviceEventEmitter.emit('WALLET', 'render');
+      dispatch(NavigationActions.back());
+			//dispatch(link(name))
 		}
 	}
     render() {
@@ -41,6 +46,7 @@ export default class TitleBar extends Component {
 					<Text style={styles.titleText}>{this.props.title}</Text>
 				</View>
 				<View style={styles.right}>
+          {this.props.renderRight}
 				</View>
 			</View>
 		)
@@ -48,8 +54,8 @@ export default class TitleBar extends Component {
 }
   
 const styles = StyleSheet.create({
-    container: {
-		height: 40,
+  container: {
+		height: 50,
 		alignItems: 'center',
 		backgroundColor: '#3d3d3b',
 		flexDirection: 'row'
@@ -70,7 +76,8 @@ const styles = StyleSheet.create({
 		flexDirection : 'row-reverse'
 	},
 	backIcon: {
-		marginLeft : 10
+		paddingLeft : 10,
+    paddingRight: 20,
 	},
 	titleText: {
 		fontSize: 20,

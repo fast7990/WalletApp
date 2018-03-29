@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {StyleSheet, Text, View, TextInput, Alert, ToastAndroid} from 'react-native';
+import {StyleSheet, Text, View, TextInput, Alert, ToastAndroid, DeviceEventEmitter} from 'react-native';
 import TitleBar from '../../components/TitleBar'
 import SubmitButton from '../../components/SubmitButton'
 import Line from '../../components/Line'
@@ -24,6 +24,11 @@ export default class CreateWallet extends Component {
         password:'',
         confirmPassword:''
     };
+  }
+
+  popToHome = (emitterValue) => {
+    DeviceEventEmitter.emit('WALLET', emitterValue);
+    this.props.navigation.popToTop();
   }
 
   setAccount(text){
@@ -63,10 +68,12 @@ export default class CreateWallet extends Component {
                       sqlite.insertWallets(data.data).then((msg)=>{
                           if(msg == "1"){
                               Alert.alert('账户导入成功 ！');
-                              this.props.dispatch(link('Home'));
+                              this.popToHome('success');
+                              //this.props.dispatch(link('Home'));
                           }else{
                               Alert.alert("发生意外错误，请重新新建账户！"  );
-                              this.props.dispatch(link('Home'));
+                              this.popToHome('fail');
+                              //this.props.dispatch(link('Home'));
                           }
                       }).catch((err)=>{
                           Alert.alert("插入账号数据发生意外错误！",err);
@@ -104,7 +111,7 @@ export default class CreateWallet extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <TitleBar title='钱包创建' type='0'/>
+        <TitleBar title='钱包创建' type='1'/>
         {/*<View style={styles.itemContainer}>*/}
           {/*<Text style={styles.text}>账户名</Text>*/}
           {/*<TextInput*/}
