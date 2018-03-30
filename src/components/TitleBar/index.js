@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {StyleSheet, Text, View, TouchableHighlight, DeviceEventEmitter} from 'react-native'
+import {StyleSheet, Text, View, TouchableOpacity, DeviceEventEmitter} from 'react-native'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { connect } from 'react-redux'
 import { link } from '../../actions/navActions'
@@ -34,13 +34,13 @@ export default class TitleBar extends Component {
 			//dispatch(link(name))
 		}
 	}
-    render() {
+  render() {
 		return (
 			<View style={styles.container}>
 				<View style={styles.left}>
-					<TouchableHighlight onPress={this._onBackButton}>
+					<TouchableOpacity activeOpacity={0.2}  onPress={this._onBackButton}>
 						<Icon name="angle-left" size={50} color={'white'} style={styles.backIcon}/>
-					</TouchableHighlight>
+					</TouchableOpacity>
 				</View>
 				<View style={styles.center}>
 					<Text style={styles.titleText}>{this.props.title}</Text>

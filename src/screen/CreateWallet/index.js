@@ -3,16 +3,14 @@ import {StyleSheet, Text, View, TextInput, Alert, ToastAndroid, DeviceEventEmitt
 import TitleBar from '../../components/TitleBar'
 import SubmitButton from '../../components/SubmitButton'
 import Line from '../../components/Line'
-import SQLUtils from '../../utils/SQLUtils'
-let sqlite = new SQLUtils()
 import web3API from '../../utils/web3API'
 import {link} from "../../actions/navActions";
 import {connect} from "react-redux";
 let web3 = new web3API()
-
+import SQLiteUtils from '../../utils/SQLiteUtils';
+let sqlite = new SQLiteUtils();
 @connect((store) => {
     return {
-
     }
 })
 

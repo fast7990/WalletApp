@@ -7,10 +7,10 @@ import BottomModal from '../../components/BottomModal';
 import ErrorText from '../../components/ErrorText';
 import {connect} from 'react-redux'
 import {link} from '../../actions/navActions'
-import SQLUtils from '../../utils/SQLUtils'
-let sqlite = new SQLUtils()
+import SQLiteUtils from '../../utils/SQLiteUtils'
+let sqlite = new SQLiteUtils();
 import web3API from '../../utils/web3API'
-let web3 = new web3API()
+let web3 = new web3API();
 
 @connect((store) => {
   return {}
@@ -177,7 +177,7 @@ export default class SendToken extends Component {
           onCloseVisible={() => {this.setState({modalVisible: false, password: ''})}}
         />
         <View style={styles.mainContainer}>
-          <TitleBar title='发送Token' type='0'/>
+          <TitleBar title='发送Token' type='1'/>
           <View style={styles.inputContainer}>
             {this.renderItem('发送账户', '发送账户', true, false, false, this.setMyAccount.bind(this), this.state.shortAccount)}
             {this.renderItem('对方账户', '填写对方账号', true, true, true, this.setToAccount.bind(this), this.state.toAccount)}

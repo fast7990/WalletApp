@@ -37,14 +37,18 @@ export default class Menu extends React.Component {
 			dispatch(link('ImportInformation'))
 		}else if(item.id === '6') {
 			dispatch(link('SearchInformation'))
-		}else if(item.id === '7') {
-			dispatch(link('PrivateKey'))
-		}else if(item.id === '8') {
+		}
+		// else if(item.id === '7') {
+		// 	dispatch(link('PrivateKey'))
+		// }
+		else if(item.id === '7') {
       this.props.pushToAccount();
       //dispatch(link('AccountInformation'))
-		}else if(item.id === '9') {
-			dispatch(link('Mnemonic'))
-		}else if(item.id === '10') {
+		}
+		// else if(item.id === '9') {
+		// 	dispatch(link('Mnemonic'))
+		// }
+		else if(item.id === '8') {
 			dispatch(link('MyProperty'))
 		}
 	}
@@ -75,12 +79,12 @@ export default class Menu extends React.Component {
 			{'id': '4','name': '收发记录', 'icon': 'get-pocket'},
 			{'id': '5','name': '信息提交', 'icon': 'envelope'},
 			{'id': '6','name': '信息查询', 'icon': 'search'},
-			{'id': '7','name': '身份信息', 'icon': 'info'}
+			// {'id': '7','name': '身份信息', 'icon': 'info'}
 		]
 		let C = [
-			{'id': '8','name': '账户管理', 'icon': 'key'},
-			{'id': '9','name': '助记词', 'icon': 'sticky-note'},
-			{'id': '10','name': '我的资产', 'icon': 'language'},
+			{'id': '7','name': '账户管理', 'icon': 'key'},
+			// {'id': '9','name': '助记词', 'icon': 'sticky-note'},
+			{'id': '8','name': '我的资产', 'icon': 'language'},
 		] 
 		return (
 			<View style={{flex: 1, backgroundColor: '#fff'}}>

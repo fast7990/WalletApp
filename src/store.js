@@ -8,5 +8,5 @@ import reducer from "./reducers"
 import { navMiddleware } from "./utils/redux"
 
 const middleware = applyMiddleware(promise(), thunk, createLogger(), navMiddleware)
-
-export default createStore(reducer, middleware)
+let store = createStore(reducer, middleware)
+export default store

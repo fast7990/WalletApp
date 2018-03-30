@@ -5,8 +5,10 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import TitleBar from '../../components/TitleBar';
 import SubmitButton from '../../components/SubmitButton';
 import Line from '../../components/Line';
-import SQLUtils from '../../utils/SQLUtils'
-let sqlite = new SQLUtils()
+import SQLiteUtils from '../../utils/SQLiteUtils';
+let sqlite = new SQLiteUtils();
+import web3API from '../../utils/web3API';
+let web3 = new web3API();
 
 
 export default class AccountInformation extends Component {
@@ -121,7 +123,7 @@ export default class AccountInformation extends Component {
           {this.props.navigation.state.params.eth + '  '}ETH
         </Text>
         <Text style={styles.accountText}>
-          {this.props.navigation.state.params.account}
+          {web3.getShortAccount2(this.props.navigation.state.params.account)}
         </Text>
       </View>
     );
@@ -300,7 +302,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   modalPrivateKeyContainer: {
-    height: 260,
+    height: 280,
   },
   titleContainer: {
     flexDirection: 'row',
@@ -317,13 +319,14 @@ const styles = StyleSheet.create({
   },
   modalKeyTipContainer: {
     borderRadius: 5,
-    padding: 5,
+    padding: 3,
+    paddingRight: 1,
     marginHorizontal: 25,
     marginBottom: 15,
     borderColor: '#CD6839',
     borderWidth: 0.5,
     backgroundColor: '#EED5D2',
-    height: 60,
+    height: 63,
     width: Dimensions.get('window').width - 80,
   },
   modalKeyTipText: {

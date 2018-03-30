@@ -29,6 +29,8 @@ import MyProperty from '../screen/MyProperty/index'
 import InfoDetail from '../screen/InfoDetail/index'
 import ChangePassword from '../screen/ChangePassword/index';
 import ExportKeystore from '../screen/ExportKeystore/index';
+import MyRecords from '../screen/MyRecords/index';
+import ReduxTest from '../screen/ReduxTest/index';
 
 export const AppNavigator = StackNavigator({
     Home: {
@@ -102,6 +104,12 @@ export const AppNavigator = StackNavigator({
     },
     ExportKeystore : {
       screen : ExportKeystore
+    },
+    MyRecords : {
+      screen : MyRecords
+    },
+    ReduxTest : {
+      screen : ReduxTest
     },
   },
   {

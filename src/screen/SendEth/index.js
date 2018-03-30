@@ -8,8 +8,8 @@ import ErrorText from '../../components/ErrorText';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {connect} from "react-redux";
 import {link} from "../../actions/navActions";
-import SQLUtils from '../../utils/SQLUtils';
-let sqlite = new SQLUtils();
+import SQLiteUtils from '../../utils/SQLiteUtils';
+let sqlite = new SQLiteUtils();
 import web3API from '../../utils/web3API';
 let web3 = new web3API();
 import ModalDropdown from 'react-native-modal-dropdown';
@@ -22,6 +22,7 @@ export default class SendEth extends Component {
     this.state = {
       wallet:{},
       myAccount: '',
+      shortAccount: '',
       toAccount: '',
       sendNum: '',
       mark: '',
@@ -36,13 +37,14 @@ export default class SendEth extends Component {
   componentDidMount = () => {
     sqlite.getCurrentWallet().then((data) => {
       //Alert.alert(data.account)
-      let str = web3.getShortAccount(data.account);
+      let str = web3.getShortAccount2(data.account);
       this.setState({myAccount: data.account});
       this.setState({shortAccount: str});
       this.setState({wallet: data});
       console.log(data)
       console.log(this.state.myAccount)
     })
+    /*
     sqlite.getSendEthToAccount().then((msg)=>{
       console.log(msg)
       let arr = [];
@@ -53,6 +55,22 @@ export default class SendEth extends Component {
       }
       this.setState({account_list : arr, account_short_list: shortArr});
       console.log(this.state.account_list);
+    }).catch((err)=>{
+      console.log(err)
+    })*/
+    sqlite.getAllWallets().then((wallets)=>{
+      console.log(wallets);
+      //得到所有钱包的account，不添加与当前用户account相等的钱包
+      let arr = [];
+      let shortArr = [];
+      for (let i=0; i<wallets.length;i++){
+        if(wallets[i].account != this.state.myAccount){
+          arr.push(wallets[i].account);
+          shortArr.push(web3.getShortAccount2(wallets[i].account));
+        }
+      }
+      this.setState({account_list : arr, account_short_list: shortArr});
+      console.log(this.state.account_list,this.state.account_short_list);
     }).catch((err)=>{
       console.log(err)
     })
@@ -78,8 +96,14 @@ export default class SendEth extends Component {
   }
   onPressSend() {
     // storage.saveString('current_account', "0xd1cc2a7ac904d7f510a9a7a7b54e23ae82671b2e");
+    if(!web3.validateAccount(this.state.myAccount)){
+      console.log(this.state.myAccount)
+      this.setState({error: '发送账户格式有错误'});
+      return;
+    }
     //如果对方账户有错，错误提示 对方账户格式有误
     if(!web3.validateAccount(this.state.toAccount)){
+      console.log(this.state.toAccount)
       this.setState({error: '对方账户格式有错误'});
       return;
     }
@@ -153,6 +177,36 @@ export default class SendEth extends Component {
   >
     <FontAwesome name="question-circle" size={40}/>
   </ModalDropdown>*/
+  renderItem1(text, placeholder, hasImage, source, editable, changeInput, value) {
+    return (
+      <View>
+        <View style={styles.itemContainer}>
+          <Text style={styles.text}>{text}</Text>
+          <TextInput
+            style={styles.input}
+            underlineColorAndroid="transparent"
+            placeholder={placeholder}
+            onChangeText={(text) => changeInput(text)}
+            value={value}
+            editable={editable}
+          />
+          {hasImage && !source &&
+          <FontAwesome name="question-circle" size={40}/>
+          }
+          {hasImage && source &&
+          <ModalDropdown
+            options={this.state.account_short_list}
+            onSelect={(idx, value) => this._onDropdownSelect(idx, value)}
+            renderRow={this._renderRow}
+          >
+            <FontAwesome name="question-circle" size={40}/>
+          </ModalDropdown>
+          }
+        </View>
+        <View style={styles.grayLine}/>
+      </View>
+    );
+  }
   renderItem2(text, placeholder, hasImage, source, editable, changeInput, value) {
     return (
       <View>
@@ -188,9 +242,26 @@ export default class SendEth extends Component {
   }
   _onDropdownSelect = (idx, value) => {
     this.setState({
-      toAccount : this.state.account_list[idx],
+      myAccount : this.state.account_list[idx],
+      shortAccount : web3.getShortAccount2(this.state.account_list[idx])
     })
-    console.log(this.state.toAccount)
+    console.log(this.state.myAccount)
+    sqlite.getAllWallets().then((wallets)=>{
+      console.log(wallets);
+      //得到所有钱包的account，不添加与当前用户account相等的钱包
+      let arr = [];
+      let shortArr = [];
+      for (let i=0; i<wallets.length;i++){
+        if(wallets[i].account != this.state.myAccount){
+          arr.push(wallets[i].account);
+          shortArr.push(web3.getShortAccount2(wallets[i].account));
+        }
+      }
+      this.setState({account_list : arr, account_short_list: shortArr});
+      console.log(this.state.account_list,this.state.account_short_list);
+    }).catch((err)=>{
+      console.log(err)
+    })
   }
   _renderRow = (rowData, rowID, highlighted) => {
     return(
@@ -217,12 +288,12 @@ export default class SendEth extends Component {
           onCloseVisible={() => {this.setState({modalVisible: false, password: ''})}}
         />
         <View style={styles.mainContainer}>
-          <TitleBar title='发送Eth' type='0'/>
+          <TitleBar title='发送Eth' type='1'/>
           <View style={styles.inputContainer}>
             {/*this.renderItem('发送账户', '发送账户', false, this.setMyAccount.bind(this), this.state.myAccount)*/}
             {/*this.renderItem('对方账户', '填写对方账号', true, this.setToAccount.bind(this))*/}
             {/*this.renderItem('发送数量', '填写eth数量', true, this.setSendNum.bind(this))*/}
-            {this.renderItem2('发送账户', '发送账户', true, false, false, this.setMyAccount.bind(this), this.state.shortAccount)}
+            {this.renderItem1('发送账户', '发送账户', true, true, false, this.setMyAccount.bind(this), this.state.shortAccount)}
             {this.renderItem2('对方账户', '填写对方账号', true, true, true, this.setToAccount.bind(this), this.state.toAccount)}
             {this.renderItem2('发送数量', '填写eth数量', false, false, true, this.setSendNum.bind(this))}
           </View>

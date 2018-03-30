@@ -1,6 +1,6 @@
 import axios from 'axios'
-import SQLUtils from './SQLUtils'
-let sqlite = new SQLUtils()
+import SQLiteUtils from './SQLiteUtils';
+let sqlite = new SQLiteUtils();
 class APIUtils {
   constructor(global_keystore = null,
               tokenContract = null,
@@ -47,7 +47,15 @@ class APIUtils {
       data: option
     })
   }
-
+  changeName(name){
+    if(name == "sendtoken"){
+      return "发送token"
+    }else if(name == "sendeth"){
+      return "发送eth"
+    }else {
+      ""
+    }
+  }
   //axios
   login(login_name, password) {
     var currentWallet = this.getCurrentWallet();

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import {StyleSheet, Text, View, TextInput, ToastAndroid} from 'react-native';
-import TitleBar from '../../components/TitleBar'
 import SubmitButton from '../../components/SubmitButton'
 
 export default class Mnemonic extends Component {
@@ -56,7 +55,6 @@ export default class Mnemonic extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <TitleBar title='助记词' type='1' name='Home'/>
         <View style={styles.inputContainer}>
           <View style={styles.itemContainer}>
             <Text style={styles.keyText}>*</Text>
@@ -74,7 +72,7 @@ export default class Mnemonic extends Component {
           {this.renderItem('确认密码', this.state.confirmPassword, true, this.setConfirmPassword.bind(this))}
         </View>
         <SubmitButton
-          buttonText={'找回账户'}
+          buttonText={'开始导入'}
           enable={this.state.keyInput && this.state.account && this.state.password && this.state.confirmPassword}
           onPressButton={this.onPressImport.bind(this)}
         />

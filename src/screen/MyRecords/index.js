@@ -28,28 +28,29 @@ export default class Records extends Component {
       console.log(str);
       this.setState({shortAccount: str});
       console.log(this.state.shortAccount)
+      sqlite.getMyHistoryRecord(data.account).then((data) => {
+        console.log(data);
+        let records = [];
+        for(let i=0;i<data.length;i++){
+          let option = JSON.parse(data[i].option)
+          let record = {
+            actionname : data[i].actionname,
+            from_account: data[i].from_account,
+            to_account: data[i].to_account,
+            amount: option.amount,
+            opttime: data[i].opttime,
+          }
+          records.push(record)
+        }
+        this.setState({records})
+        console.log(this.state.records)
+      }).catch((err)=>{
+        console.log(err)
+      })
     }).catch((err) => {
       console.log(err)
     })
-    sqlite.getHistoryRecord().then((data) => {
-      console.log(data);
-      let records = [];
-      for(let i=0;i<data.length;i++){
-        let option = JSON.parse(data[i].option)
-        let record = {
-          actionname : data[i].actionname,
-          from_account: data[i].from_account,
-          to_account: data[i].to_account,
-          amount: option.amount,
-          opttime: data[i].opttime,
-        }
-        records.push(record)
-      }
-      this.setState({records})
-      console.log(this.state.records)
-    }).catch((err)=>{
-      console.log(err)
-    })
+
   }
   componentWillUnmount = () => {
     sqlite.close()

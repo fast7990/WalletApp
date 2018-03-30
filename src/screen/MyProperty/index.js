@@ -3,8 +3,8 @@ import {StyleSheet, Text, View, TextInput, Dimensions, Alert,TouchableOpacity,
   TouchableHighlight,FlatList} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import TitleBar from '../../components/TitleBar';
-import SQLUtils from '../../utils/SQLUtils';
-let sqlite = new SQLUtils();
+import SQLiteUtils from '../../utils/SQLiteUtils';
+let sqlite = new SQLiteUtils();
 export default class MyProperty extends Component {
   constructor(props) {
     super(props);

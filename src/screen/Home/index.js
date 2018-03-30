@@ -1,6 +1,6 @@
 import React from 'react'
 import {
-  Button, View, Text, PixelRatio, StyleSheet, TouchableHighlight, Image, ViewPagerAndroid,
+  Button, View, Text, PixelRatio, StyleSheet, TouchableOpacity, Image, ViewPagerAndroid,
   Dimensions, Alert, DeviceEventEmitter
 } from 'react-native'
 import Drawer from 'react-native-drawer'
@@ -8,10 +8,12 @@ import Menu from '../../components/Menu'
 import Line from '../../components/Line'
 import {connect} from 'react-redux'
 import {link} from '../../actions/navActions'
-import SQLUtils from '../../utils/SQLUtils'
-let sqlite = new SQLUtils()
+import SQLiteUtils from '../../utils/SQLiteUtils'
+let sqlite = new SQLiteUtils()
 import web3API from '../../utils/web3API'
 let web3 = new web3API()
+import type { ViewPagerScrollState } from 'ViewPagerAndroid';
+
 @connect((store) => {
     return {}
 })
@@ -26,15 +28,17 @@ export default class HomeScreen extends React.Component {
     };
   }
   componentDidMount = () => {
+    console.log(sqlite.db)
     this.getData();
     this.importwalletEmitter = DeviceEventEmitter.addListener('WALLET', (result) => {
-      if(result == 'success' || result == 'render') {
+      /*if(result == 'success' || result == 'render') {
         this.getData();
-      }
+      }*/
+      console.log(sqlite.db);
+      this.getData();
       this.closeControlPanel();
     });
   }
-
   componentWillUnmount = () => {
     this.importwalletEmitter.remove();
     sqlite.close()
@@ -93,7 +97,7 @@ export default class HomeScreen extends React.Component {
 
   onPageSelected = (e) =>
   {
-    this.setState({page: e.nativeEvent.position})
+    this.setState({page: e.nativeEvent.position});
     sqlite.getWalletByIndex(e.nativeEvent.position).then((wallet) => {
       if (wallet != null) {
         sqlite.updateCurrentWallet(wallet).then((msg) => {
@@ -127,11 +131,11 @@ export default class HomeScreen extends React.Component {
   renderPage = () => {
     let pages = [];
     let length = 10;
-    if(this.state.wallets == null){
-      length = 10
-    }else {
-      length = this.state.wallets.length;
-    }
+    // if(this.state.wallets == null){
+    //   length = 10;
+    // }else {
+    //   length = this.state.wallets.length;
+    // }
 
     for (let i = 0; i < length; i++) {
       pages.push(
@@ -141,30 +145,30 @@ export default class HomeScreen extends React.Component {
             source={require('./img/logo.png')}
           />
           <View style={styles.header_down_info}>
-            {this.state.wallets &&
             <Text style={styles.header_down_info_label}>
-                {this.state.wallets[i].name}
+                {this.state.wallets && this.state.wallets[i]  ? this.state.wallets[i].name : '待添加'}
             </Text>
+            {this.state.wallets && this.state.wallets[i] &&
+              <TouchableOpacity onPress={this._onQRCodePressed}>
+                <Image
+                  style={styles.header_down_info_icon}
+                  source={require('./img/icon4.png')}
+                />
+              </TouchableOpacity>
             }
-            <TouchableHighlight onPress={this._onQRCodePressed}>
-            <Image
-              style={styles.header_down_info_icon}
-              source={require('./img/icon4.png')}
-            />
-            </TouchableHighlight>
           </View>
-          <View style={styles.header_down_label}>
-            <Text style={styles.header_down_label_style}>
-              备份私钥
-            </Text>
-          </View>
+          {this.state.wallets && this.state.wallets[i] &&
+            <View style={styles.header_down_label}>
+              <Text style={styles.header_down_label_style}>
+                备份私钥
+              </Text>
+            </View>
+          }
         </View>
       );
     }
-
     return pages;
   }
-
   renderItem = (account, value) => {
     let str = web3.getShortAccount(account);
     return(
@@ -174,7 +178,6 @@ export default class HomeScreen extends React.Component {
       </View>
     );
   }
-
   render()
   {
     return (
@@ -193,16 +196,17 @@ export default class HomeScreen extends React.Component {
         <View style={styles.container}>
           <View style={[styles.header]}>
             <View style={styles.header_up}>
-              <TouchableHighlight onPress={this.openControlPanel}>
+              <TouchableOpacity onPress={this.openControlPanel}>
                 <Image
                     style={styles.header_up_icon}
                     source={require('./img/icon5.png')}
                 />
-              </TouchableHighlight>
+              </TouchableOpacity>
             </View>
             <ViewPagerAndroid
               style={styles.viewPager}
               initialPage={0}
+              scrollEnabled={this.state.wallets ? true : false}
               onPageSelected={this.onPageSelected.bind(this)}
             >
               {this.renderPage()}
@@ -210,7 +214,7 @@ export default class HomeScreen extends React.Component {
             {this.renderIndicator()}
           </View>
           <View style={[styles.content]}>
-            <TouchableHighlight style={styles.content_item} onPress={() => {
+            <TouchableOpacity style={styles.content_item} onPress={() => {
                 this.props.dispatch(link('SendEth'))
             }}>
               <View>
@@ -222,8 +226,8 @@ export default class HomeScreen extends React.Component {
                 </View>
                 <Text sytle={styles.font}>发送ETH</Text>
               </View>
-            </TouchableHighlight>
-            <TouchableHighlight style={styles.content_item} onPress={() => {this.props.dispatch(link('SendToken'))}}>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.content_item} onPress={() => {this.props.dispatch(link('SendToken'))}}>
               <View>
                 <View style={styles.content_item_icon_wrapper}>
                   <Image
@@ -233,16 +237,18 @@ export default class HomeScreen extends React.Component {
                 </View>
                 <Text sytle={[styles.font]}>发送Token</Text>
               </View>
-            </TouchableHighlight>
-            <View style={styles.content_item}>
-              <View style={styles.content_item_icon_wrapper}>
-                <Image
-                  style={styles.content_item_icon3}
-                  source={require('./img/icon3.png')}
-                />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.content_item} onPress={() => {this.props.dispatch(link('MyRecords'))}}>
+              <View style={styles.content_item}>
+                <View style={styles.content_item_icon_wrapper}>
+                  <Image
+                    style={styles.content_item_icon3}
+                    source={require('./img/icon3.png')}
+                  />
+                </View>
+                <Text style={[styles.font]}>记录</Text>
               </View>
-              <Text style={[styles.font]}>接收</Text>
-            </View>
+            </TouchableOpacity>
           </View>
           <View style={styles.footer}>
             {this.state.dataSource &&
@@ -294,7 +300,6 @@ const styles = StyleSheet.create({
     width: 62
   },
   header_down_info: {
-    height: 15,
     marginTop: 14,
     marginBottom: 14,
     flexDirection: 'row'

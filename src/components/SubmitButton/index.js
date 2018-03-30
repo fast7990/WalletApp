@@ -19,7 +19,7 @@ export default class SubmitButton extends Component {
           <View style={[styles.container, this.props.style, this.props.enable ? styles.enableBackground : styles.disabledBackgournd]}>
             <Text style={styles.buttonText}>{this.props.buttonText}</Text>
           </View>
-      </TouchableNativeFeedback>
+        </TouchableNativeFeedback>
       );
     }
   }

@@ -6,8 +6,8 @@ import {
 import Dimensions from 'Dimensions';
 import TitleBar from '../../components/TitleBar';
 import QRCodeMaker from 'react-native-qrcode';
-import SQLUtils from '../../utils/SQLUtils'
-let sqlite = new SQLUtils()
+import SQLiteUtils from '../../utils/SQLiteUtils';
+let sqlite = new SQLiteUtils();
 import web3API from '../../utils/web3API'
 let web3 = new web3API()
 

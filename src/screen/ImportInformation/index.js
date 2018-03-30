@@ -2,9 +2,8 @@ import React, {Component} from 'react';
 import {StyleSheet, Text, View, TextInput, Alert, ToastAndroid, DeviceEventEmitter} from 'react-native';
 import TitleBar from '../../components/TitleBar'
 import SubmitButton from '../../components/SubmitButton'
-import SQLUtils from '../../utils/SQLUtils'
-
-let sqlite = new SQLUtils()
+import SQLiteUtils from '../../utils/SQLiteUtils';
+let sqlite = new SQLiteUtils();
 import web3API from '../../utils/web3API'
 import {link} from "../../actions/navActions";
 import {connect} from "react-redux";
@@ -62,9 +61,6 @@ export default class ImportInformation extends Component {
     else if(!web3.validateCardNum(this.state.carNum)){
       ToastAndroid.show('身份证号长度不对，或者号码不符合规定！', ToastAndroid.SHORT);
       return;
-    }
-    else {
-      return true
     }
     let option = {
       'account_hash': this.state.wallet.account,

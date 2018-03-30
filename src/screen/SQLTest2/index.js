@@ -7,8 +7,8 @@ import {
   StyleSheet,
   TouchableHighlight
 } from 'react-native'
-import SQLUtils from '../../utils/SQLUtils'
-let sqlite = new SQLUtils()
+import SQLiteUtils from '../../utils/SQLiteUtils';
+let sqlite = new SQLiteUtils();
 import web3API from '../../utils/web3API'
 let web3 = new web3API()
 
@@ -124,17 +124,7 @@ export default class SQLTest2 extends Component {
             }
         )*/
   }
-  _onDropTable = () => {
 
-  }
-  _onAddCurrentWallet = () => {
-    let wallet = sqlite.getLastWallet()
-    console.log(wallet)
-  }
-  _onFindCurrentWallet = () => {
-    let wallet = sqlite.getCurrentWallet()
-    console.log(wallet)
-  }
 
   _onAddActionHistory = () => {
     let data1 = {
@@ -232,16 +222,22 @@ export default class SQLTest2 extends Component {
           <Text>wallet查询</Text>
         </TouchableHighlight>
         <TouchableHighlight
-          onPress={this._onFindWallets}
+          onPress={this._onAdd_C_Wallet}
           style={{marginTop: 15}}
         >
-          <Text>wallet删除</Text>
+          <Text>添加当前账户</Text>
         </TouchableHighlight>
         <TouchableHighlight
-          onPress={this._onLocalName}
+          onPress={this._onUpdate_C_Wallet}
           style={{marginTop: 15}}
         >
-          <Text>本地</Text>
+          <Text>更新当前账户</Text>
+        </TouchableHighlight>
+        <TouchableHighlight
+          onPress={this._onGet_C_Wallet}
+          style={{marginTop: 15}}
+        >
+          <Text>查看当前账户</Text>
         </TouchableHighlight>
         <TouchableHighlight
           onPress={this._onAddActionHistory}
