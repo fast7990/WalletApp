@@ -2,13 +2,12 @@ import React, {Component} from 'react';
 import {StyleSheet, Text, View, TextInput, Alert, ToastAndroid, DeviceEventEmitter } from 'react-native';
 import SubmitButton from '../../components/SubmitButton'
 import SQLUtils from '../../utils/SQLUtils'
-
 let sqlite = new SQLUtils()
 import web3API from '../../utils/web3API'
 import {connect} from "react-redux";
 import {NavigationActions } from 'react-navigation';
-
 let web3 = new web3API()
+import web3Utils from '../../utils/web3Utils';
 @connect((store) => {
   return {}
 })
@@ -16,7 +15,7 @@ export default class ImportPrivateKey extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      keystore: '',
+      privatekey: '',
       account: '',
       password: '',
       confirmPassword: '',
@@ -41,7 +40,7 @@ export default class ImportPrivateKey extends Component {
     this.setState({confirmPassword: text});
   }
   onPressImport = () => {
-    if(!web3.validateIfEmpty(this.state.keystore)){
+    if(!web3.validateIfEmpty(this.state.privatekey)){
       ToastAndroid.show('私钥不能为空', ToastAndroid.SHORT);
       return;
     }
@@ -59,10 +58,28 @@ export default class ImportPrivateKey extends Component {
     }
     let account_name = this.state.account;
     let password = this.state.confirmPassword;
-    let keystore = '{"address":"d1cc2a7ac904d7f510a9a7a7b54e23ae82671b2e","crypto":{"cipher":"aes-128-ctr","ciphertext":"1529f93d1d4dac5fbc8a9c67f8b43abaedc558be3fe5d584f69c50b74e7ecfdc","cipherparams":{"iv":"656a9a4bf8e7501d13aa79c444db5904"},"kdf":"scrypt","kdfparams":{"dklen":32,"n":262144,"p":1,"r":8,"salt":"22cc471525cb8e174a923d10e1db5910047b9e4fdc444bbddd142252f4ef1a26"},"mac":"f1bc533b29e84349d2dbc21336b5f07cf8c39b2b277ba5cfdcf883b7d2d4397c"},"id":"433898e3-0610-4734-8bd2-ccda6699e1e8","version":3}'
-    if (this.state.keystore != '') {
-      keystore = this.state.keystore;
-    }
+    let  privatekey = this.state.privatekey;
+
+    web3Utils.importPrivateKey(account_name,privatekey,password).then((data) => {
+      sqlite.insertWallets(data).then((msg) => {
+        if (msg == "1") {
+          Alert.alert('导入成功 ！');
+          this.popToHome('success');
+          //this.props.dispatch(link('Home'));
+        } else {
+          Alert.alert("插入账号数据发生意外错误！");
+          this.popToHome('success');
+          //this.props.dispatch(link('Home'));
+        }
+      }).catch((err) => {
+        Alert.alert("插入账号数据发生意外错误！", err);
+      })
+    }).catch((err) => {
+      Alert.alert("发生意外错误！");
+      this.popToHome('fail');
+      //this.props.dispatch(link('Home'));
+    })
+    /*
     web3.importWallet(account_name, password, keystore).then((msg) => {
       if (msg != null) {
         console.log(msg)
@@ -112,7 +129,7 @@ export default class ImportPrivateKey extends Component {
       Alert.alert("发生意外错误！");
       this.popToHome('fail');
       //this.props.dispatch(link('Home'));
-    })
+    })*/
   }
   renderItem(text, password, isPassword, changeInput) {
     return (
@@ -141,8 +158,8 @@ export default class ImportPrivateKey extends Component {
               style={styles.keystore}
               multiline
               underlineColorAndroid="transparent"
-              onChangeText={(text) => this.setState({keystore: text})}
-              value={this.state.keystore}
+              onChangeText={(text) => this.setState({privatekey: text})}
+              value={this.state.privatekey}
               placeholder={'明文私钥'}
             />
           </View>

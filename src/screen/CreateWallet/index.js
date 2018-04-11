@@ -9,6 +9,7 @@ import {connect} from "react-redux";
 let web3 = new web3API()
 import SQLiteUtils from '../../utils/SQLiteUtils';
 let sqlite = new SQLiteUtils();
+import web3Utils from '../../utils/web3Utils';
 @connect((store) => {
     return {
     }
@@ -55,6 +56,26 @@ export default class CreateWallet extends Component {
       ToastAndroid.show('密码格式错误！', ToastAndroid.SHORT);
       return;
     }
+    /*
+    web3Utils.newwallet(account_name, password).then((data)=>{
+      console.log(data);
+      sqlite.insertWallets(data).then((msg)=>{
+        if(msg == "1"){
+          Alert.alert('账户导入成功 ！');
+          this.popToHome('success');
+          //this.props.dispatch(link('Home'));
+        }else{
+          Alert.alert("发生意外错误，请重新新建账户！"  );
+          this.popToHome('fail');
+          //this.props.dispatch(link('Home'));
+        }
+      }).catch((err)=>{
+        Alert.alert("插入账号数据发生意外错误！",err);
+      })
+    }).catch((err)=>{
+      Alert.alert("发生意外错误！");
+    })*/
+
     web3.newWallet(account_name, password ).then((msg)=>{
           if (msg != null) {
               //  msg = JSON.parse(vMsg);

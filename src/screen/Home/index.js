@@ -41,7 +41,7 @@ export default class HomeScreen extends React.Component {
   }
   componentWillUnmount = () => {
     this.importwalletEmitter.remove();
-    sqlite.close()
+    sqlite.close();
   }
   _onQRCodePressed = () => {
     this.props.dispatch(link("QRCode"))

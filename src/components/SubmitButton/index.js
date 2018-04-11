@@ -6,7 +6,7 @@ export default class SubmitButton extends Component {
     buttonText:'',
     enable: false,
     onPressButton: null,
-	style:null
+	  style:null
   };  
 
     constructor(props) {

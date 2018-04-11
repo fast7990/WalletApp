@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import {StyleSheet, Text, View, TextInput, ToastAndroid} from 'react-native';
+import {StyleSheet, Text, View, TextInput, ToastAndroid, Alert} from 'react-native';
 import SubmitButton from '../../components/SubmitButton'
-
+import web3Utils from '../../utils/web3Utils';
 export default class Mnemonic extends Component {
 
   constructor(props) {
@@ -28,9 +28,44 @@ export default class Mnemonic extends Component {
   }
 
   onPressImport() {
-    if (!/[a-z0-9]$/.test(this.state.account) || this.state.account.length <= 6) {
-      ToastAndroid.show('This is a toast with short duration', ToastAndroid.SHORT);
+    if(!web3.validateIfEmpty(this.state.keyInput)){
+      ToastAndroid.show('私钥不能为空', ToastAndroid.SHORT);
+      return;
     }
+    else if(!web3.validateIfEmpty(this.state.account)){
+      ToastAndroid.show('账户不能为空', ToastAndroid.SHORT);
+      return;
+    }
+    else if(!web3.validateIfEmpty(this.state.password)){
+      ToastAndroid.show('密码不能为空', ToastAndroid.SHORT);
+      return;
+    }
+    if (this.state.password != this.state.confirmPassword) {
+      ToastAndroid.show('两次密码不一致', ToastAndroid.SHORT);
+      return;
+    }
+    let account_name = this.state.account;
+    let password = this.state.confirmPassword;
+    let mnemonic = this.state.keyInput;
+    web3Utils.getKeysoreByMnemonic(account_name,mnemonic,password).then((data) => {
+      sqlite.insertWallets(data).then((msg) => {
+        if (msg == "1") {
+          Alert.alert('导入成功 ！');
+          this.popToHome('success');
+          //this.props.dispatch(link('Home'));
+        } else {
+          Alert.alert("插入账号数据发生意外错误！");
+          this.popToHome('success');
+          //this.props.dispatch(link('Home'));
+        }
+      }).catch((err) => {
+        Alert.alert("插入账号数据发生意外错误！", err);
+      })
+    }).catch((err) => {
+      Alert.alert("发生意外错误！");
+      this.popToHome('fail');
+      //this.props.dispatch(link('Home'));
+    })
   }
 
   renderItem(text, password, isPassword, changeInput){

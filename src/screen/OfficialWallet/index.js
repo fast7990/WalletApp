@@ -1,13 +1,16 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, View, TextInput, Alert, ToastAndroid, DeviceEventEmitter } from 'react-native';
+import {StyleSheet, Text, View, TextInput, Alert, ToastAndroid, DeviceEventEmitter} from 'react-native';
 import SubmitButton from '../../components/SubmitButton'
 import SQLiteUtils from '../../utils/SQLiteUtils';
 let sqlite = new SQLiteUtils();
 import web3API from '../../utils/web3API'
 import {connect} from "react-redux";
-import {NavigationActions } from 'react-navigation';
-
-let web3 = new web3API()
+import {NavigationActions} from 'react-navigation';
+let web3 = new web3API();
+const crypto = require("../../utils/crypto/crypto");
+import web3Utils from '../../utils/web3Utils';
+//import {createNewAddress} from  "../../utils/ethTest"
+//import web3Utils from '../../utils/test'
 @connect((store) => {
   return {}
 })
@@ -21,7 +24,18 @@ export default class OfficialWallet extends Component {
       confirmPassword: '',
     }
   }
-  componentDidMount = () => {
+
+  componentDidMount() {
+
+   /* let password = "1234";
+    let newWallet = createNewAddress(password);
+    console.log(newWallet);*//*
+    let newWallet = web3Utils.createNewAddress('hello react!');
+    console.log(newWallet);*/
+
+  }
+
+  componentWillUnmount() {
     sqlite.close()
   }
 
@@ -33,22 +47,25 @@ export default class OfficialWallet extends Component {
   setAccount(text) {
     this.setState({account: text});
   }
+
   setPassword(text) {
     this.setState({password: text});
   }
+
   setConfirmPassword(text) {
     this.setState({confirmPassword: text});
   }
+
   onPressImport = () => {
-    if(!web3.validateIfEmpty(this.state.keystore)){
+    if (!web3.validateIfEmpty(this.state.keystore)) {
       ToastAndroid.show('Keystore不能为空', ToastAndroid.SHORT);
       return;
     }
-    else if(!web3.validateIfEmpty(this.state.account)){
+    else if (!web3.validateIfEmpty(this.state.account)) {
       ToastAndroid.show('账户不能为空', ToastAndroid.SHORT);
       return;
     }
-    else if(!web3.validateIfEmpty(this.state.password)){
+    else if (!web3.validateIfEmpty(this.state.password)) {
       ToastAndroid.show('密码不能为空', ToastAndroid.SHORT);
       return;
     }
@@ -62,6 +79,26 @@ export default class OfficialWallet extends Component {
     if (this.state.keystore != '') {
       keystore = this.state.keystore;
     }
+    web3Utils.importwallet(account_name,keystore, password).then((data) => {
+      sqlite.insertWallets(data).then((msg) => {
+        if (msg == "1") {
+          Alert.alert('导入成功 ！');
+          this.popToHome('success');
+          //this.props.dispatch(link('Home'));
+        } else {
+          Alert.alert("插入账号数据发生意外错误！");
+          this.popToHome('success');
+          //this.props.dispatch(link('Home'));
+        }
+      }).catch((err) => {
+        Alert.alert("插入账号数据发生意外错误！", err);
+      })
+    }).catch((err) => {
+      Alert.alert("发生意外错误！");
+      this.popToHome('fail');
+      //this.props.dispatch(link('Home'));
+    })
+    /*
     web3.importWallet(account_name, password, keystore).then((msg) => {
       if (msg != null) {
         console.log(msg)
@@ -112,7 +149,9 @@ export default class OfficialWallet extends Component {
       this.popToHome('fail');
       //this.props.dispatch(link('Home'));
     })
+    */
   }
+
   renderItem(text, password, isPassword, changeInput) {
     return (
       <View>
@@ -130,6 +169,7 @@ export default class OfficialWallet extends Component {
       </View>
     );
   }
+
   render() {
     return (
       <View style={styles.container}>

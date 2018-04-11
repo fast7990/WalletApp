@@ -4,7 +4,6 @@ import {connect} from 'react-redux'
 import {addNavigationHelpers, StackNavigator, NavigationActions} from 'react-navigation'
 import {addListener} from '../utils/redux'
 import {BackHandler} from "react-native"
-
 import HomeScreen from '../screen/Home/index'
 import ImportWallet from '../screen/ImportWallet/index'
 import CreateWallet from '../screen/CreateWallet/index'
@@ -31,6 +30,8 @@ import ChangePassword from '../screen/ChangePassword/index';
 import ExportKeystore from '../screen/ExportKeystore/index';
 import MyRecords from '../screen/MyRecords/index';
 import ReduxTest from '../screen/ReduxTest/index';
+import WebView2 from '../screen/WebView/index';
+
 
 export const AppNavigator = StackNavigator({
     Home: {
@@ -110,6 +111,9 @@ export const AppNavigator = StackNavigator({
     },
     ReduxTest : {
       screen : ReduxTest
+    },
+    WebView2: {
+      screen : WebView2
     },
   },
   {

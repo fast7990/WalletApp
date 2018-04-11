@@ -36,7 +36,7 @@ export default class Menu extends React.Component {
 		}else if(item.id === '5') {
 			dispatch(link('ImportInformation'))
 		}else if(item.id === '6') {
-			dispatch(link('SearchInformation'))
+			dispatch(link('WebView2'))
 		}
 		// else if(item.id === '7') {
 		// 	dispatch(link('PrivateKey'))
